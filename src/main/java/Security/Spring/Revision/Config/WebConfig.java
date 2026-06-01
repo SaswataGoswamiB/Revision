@@ -1,8 +1,11 @@
 package Security.Spring.Revision.Config;
 
 
+import Security.Spring.Revision.Service.CustomUserNameDetails;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -12,6 +15,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl;
@@ -25,19 +29,24 @@ import java.util.Collection;
 import java.util.Collections;
 
 @Configuration
+//@EnableWebSecurity --> Enables Security Customizations on Spring Security.
 @EnableWebSecurity
 public class WebConfig {
+
+    @Autowired
+    CustomUserNameDetails customuserdetails;
 
     @Bean
     SecurityFilterChain getSecurityFilterChain(HttpSecurity httpsecurity){
 
         httpsecurity.authorizeHttpRequests((req)->{
-            req.requestMatchers("/User/Login").permitAll();
-           //req.anyRequest().authenticated();
+            req.requestMatchers(HttpMethod.POST,"/User/Register", "/User/Login").permitAll();
+            req.anyRequest().authenticated();
         })
                 .httpBasic(Customizer.withDefaults())
                 //csrf(x=>x.disable)
                 .csrf(CsrfConfigurer::disable)
+                //form Login
                 .formLogin(Customizer.withDefaults())
                 // to stop using/creating Sessions.
                 .sessionManagement(x->x.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -58,15 +67,23 @@ public class WebConfig {
         return new BCryptPasswordEncoder();
     }
 
-    @Bean
-     public AuthenticationManager getauthmanager(AuthenticationConfiguration authconfig){
-            return authconfig.getAuthenticationManager();
-    }
+//    @Bean
+//    public AuthenticationProvider getauthenticationprovider(){
+//        DaoAuthenticationProvider authprovder = new DaoAuthenticationProvider(getuserdetailsservice());
+//        authprovder.setPasswordEncoder(getpasswordencoder());
+//        return authprovder;
+//    }
+
 
     @Bean
-    public AuthenticationProvider getauthenticationprovider(){
-        DaoAuthenticationProvider authprovder = new DaoAuthenticationProvider(getuserdetailsservice());
-        authprovder.setPasswordEncoder(getpasswordencoder());
-        return authprovder;
+    AuthenticationManager getAuthManager(AuthenticationConfiguration authconfig){
+        return  authconfig.getAuthenticationManager();
     }
+
+//    @Bean
+//    AuthenticationProvider getAuthProvider(){
+//        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider(customuserdetails);
+//        daoAuthenticationProvider.setPasswordEncoder(getpasswordencoder());
+//        return daoAuthenticationProvider;
+//    }
 }

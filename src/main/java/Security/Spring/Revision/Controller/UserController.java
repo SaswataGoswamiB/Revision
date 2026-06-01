@@ -4,6 +4,7 @@ import Security.Spring.Revision.Entity.User;
 import Security.Spring.Revision.Repository.UserRepo;
 import Security.Spring.Revision.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,6 +22,9 @@ public class UserController {
 
     @PostMapping("/Register")
     User RegisterUser(@RequestBody User user){
+        String password = user.getPassword();
+        String newPassword = new BCryptPasswordEncoder().encode(password);
+        user.setPassword(newPassword);
         User saveduser =  userrepo.save(user);
         return saveduser;
     }

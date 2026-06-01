@@ -35,6 +35,9 @@ public class User {
         Email = email;
     }
 
+    public User() {
+    }
+
     public String getName() {
         return name;
     }
