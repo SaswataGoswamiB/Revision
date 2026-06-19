@@ -14,6 +14,9 @@ public class UserService {
     @Autowired
     AuthenticationManager authmanager;
 
+    @Autowired
+    JwtService jwtservice;
+
    public String vertifyUser(User revisionuser){
 
         Authentication auth = new UsernamePasswordAuthenticationToken(revisionuser.getName(),revisionuser.getPassword());
@@ -21,7 +24,7 @@ public class UserService {
         Authentication authenticate = authmanager.authenticate(auth);
         try{
         if(authenticate.isAuthenticated()){
-            return "Logged in !!!";
+            return jwtservice.generateToken(revisionuser);
         }
         }
         catch(Exception e) {

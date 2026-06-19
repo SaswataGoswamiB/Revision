@@ -24,6 +24,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.crypto.password4j.BcryptPassword4jPasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -36,7 +37,10 @@ public class WebConfig {
     @Autowired
     CustomUserNameDetails customuserdetails;
 
-    @Bean
+    @Autowired
+    JwtAuthConfigFilter jwtauthconfigfilter;
+
+
     SecurityFilterChain getSecurityFilterChain(HttpSecurity httpsecurity){
 
         httpsecurity.authorizeHttpRequests((req)->{
@@ -49,10 +53,30 @@ public class WebConfig {
                 //form Login
                 .formLogin(Customizer.withDefaults())
                 // to stop using/creating Sessions.
-                .sessionManagement(x->x.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         ;
 
         return httpsecurity.build();
+    }
+
+    @Bean
+    SecurityFilterChain jwtsecurityFilterCahin(HttpSecurity httpSecurity) throws Exception {
+
+        httpSecurity.authorizeHttpRequests(x->{
+                    x.requestMatchers(HttpMethod.POST,"/User/Login","/User/Register").permitAll();
+                    x.anyRequest().authenticated();
+                })
+
+                //Form Login and Htpp Basics arent requir3d for JWT
+//                .formLogin(Customizer::withDefaults).
+//                httpBasic(Customizer::withDefaults)
+
+                .csrf(x -> x.disable()).
+                sessionManagement(x->{
+                    x.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                })
+                .addFilterBefore(jwtauthconfigfilter, UsernamePasswordAuthenticationFilter.class);
+
+        return httpSecurity.build();
     }
 
     @Bean
