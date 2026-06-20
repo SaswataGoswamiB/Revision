@@ -1,6 +1,8 @@
 package Security.Spring.Revision.Service;
 
 import Security.Spring.Revision.Entity.User;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -42,10 +44,50 @@ public class JwtService {
         return jwttoken;
     }
 
+//    Key generateKey(){
+//        String key =  env.getProperty("jwt.secret.key");
+//        byte[] decode = Decoders.BASE64.decode(key);
+//        SecretKey secretKey = Keys.hmacShaKeyFor(decode);
+//        return secretKey;
+//    }
+//
+//
+   public  String getUsername(String jwt){
+        Jws<Claims> claimsJws =
+                Jwts.
+                parser().
+                verifyWith((SecretKey) generateKey()).
+                build().
+                parseSignedClaims(jwt);
+
+        Claims payload = claimsJws.getPayload();
+        String subject = payload.getSubject();
+
+        return subject;
+
+    }
+
+
     Key generateKey(){
-        String key =  env.getProperty("jwt.secret.key");
-        byte[] decode = Decoders.BASE64.decode(key);
+
+        String property = env.getProperty("jwt.secret.key");
+        byte[] decode = Decoders.BASE64.decode(property);
         SecretKey secretKey = Keys.hmacShaKeyFor(decode);
         return secretKey;
     }
+
+    public boolean isvalidToken(String jwt){
+        Date expiration = Jwts.parser().verifyWith((SecretKey) generateKey()).
+                build().
+                parseSignedClaims(jwt).
+                getPayload().
+                getExpiration();
+
+        boolean isvalid =  expiration.before(new Date());
+
+        return isvalid;
+    }
+
+
+
 }
