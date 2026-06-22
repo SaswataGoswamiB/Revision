@@ -1,6 +1,7 @@
 package Security.Spring.Revision.Config;
 
 
+import Security.Spring.Revision.Interceptors.RestTemplateInterceptors;
 import Security.Spring.Revision.Service.CustomUserNameDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -21,10 +22,11 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.crypto.password4j.BcryptPassword4jPasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -40,8 +42,11 @@ public class WebConfig {
     @Autowired
     JwtAuthConfigFilter jwtauthconfigfilter;
 
+    @Autowired
+    RestTemplateInterceptors restTemplateInterceptors;
 
-    SecurityFilterChain getSecurityFilterChain(HttpSecurity httpsecurity){
+
+    SecurityFilterChain getSecurityFilterChain(HttpSecurity httpsecurity) throws Exception {
 
         httpsecurity.authorizeHttpRequests((req)->{
             req.requestMatchers(HttpMethod.POST,"/User/Register", "/User/Login").permitAll();
@@ -91,23 +96,19 @@ public class WebConfig {
         return new BCryptPasswordEncoder();
     }
 
-//    @Bean
-//    public AuthenticationProvider getauthenticationprovider(){
-//        DaoAuthenticationProvider authprovder = new DaoAuthenticationProvider(getuserdetailsservice());
-//        authprovder.setPasswordEncoder(getpasswordencoder());
-//        return authprovder;
-//    }
-
 
     @Bean
-    AuthenticationManager getAuthManager(AuthenticationConfiguration authconfig){
+    AuthenticationManager getAuthManager(AuthenticationConfiguration authconfig) throws Exception {
         return  authconfig.getAuthenticationManager();
     }
 
-//    @Bean
-//    AuthenticationProvider getAuthProvider(){
-//        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider(customuserdetails);
-//        daoAuthenticationProvider.setPasswordEncoder(getpasswordencoder());
-//        return daoAuthenticationProvider;
-//    }
+
+    @Bean
+    public RestTemplate restTemplate() {
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getInterceptors().add(restTemplateInterceptors);
+        return restTemplate;
+    }
+
+
 }

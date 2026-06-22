@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Collections;
 
 @Component
 public class JwtAuthConfigFilter extends OncePerRequestFilter {
@@ -45,7 +46,12 @@ public class JwtAuthConfigFilter extends OncePerRequestFilter {
         if(username!= null && username.equals(user.getName())){
             boolean validtokenexp = jwtservice.isvalidToken(jwttoken);
             if(validtokenexp){
-                UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username,null);
+                UsernamePasswordAuthenticationToken token =
+                        new UsernamePasswordAuthenticationToken(
+                                username,
+                                null,
+                                Collections.emptyList()
+                        );
                 // Set extra data to the Authentication object like IP-ADDRESS,WHO LOGGED IN,AT WHAT TIME
                 //Gives you some extra secuirty.
                 token.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

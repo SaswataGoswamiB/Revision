@@ -2,7 +2,6 @@ package Security.Spring.Revision.Utility;
 
 import Security.Spring.Revision.Entity.User;
 import Security.Spring.Revision.Repository.UserRepo;
-import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -26,7 +25,7 @@ public class CustomAuthProvider implements AuthenticationProvider {
     PasswordEncoder passwordEncoder;
 
     @Override
-    public @Nullable Authentication authenticate(Authentication authentication) throws AuthenticationException {
+    public  Authentication authenticate(Authentication authentication) throws AuthenticationException {
         String username = authentication.getName();
         String encodedPassword = authentication.getCredentials().toString();
                 //passwordEncoder.encode(authentication.getCredentials().toString());

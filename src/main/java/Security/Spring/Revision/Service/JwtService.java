@@ -83,11 +83,9 @@ public class JwtService {
                 getPayload().
                 getExpiration();
 
-        boolean isvalid =  expiration.before(new Date());
+        boolean isvalid =  expiration.after(new Date());
 
         return isvalid;
     }
-
-
 
 }
